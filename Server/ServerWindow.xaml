@@ -1,0 +1,40 @@
+﻿<Window x:Name="sw" x:Class="Server.ServerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Server"
+        mc:Ignorable="d" MinHeight="350" MinWidth="665"
+        Title="RequestHelp Server" Height="350" Width="665" Loaded="sw_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="220"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Margin="15">
+            <Viewbox>
+                <TextBlock x:Name="Pos1" Text="1. " MouseDown="CancelPos1" Cursor="Hand" MouseEnter="NameLabelEnter" MouseLeave="NameLabelLeave" ToolTip="Click to remove"/>
+            </Viewbox>
+        </Label>
+        <Label Grid.Row="1" Grid.Column="0" Margin="15">
+            <Viewbox>
+                <TextBlock x:Name="Pos2" Text="2. " MouseDown="CancelPos2" Cursor="Hand" ToolTip="Click to remove" MouseEnter="NameLabelEnter" MouseLeave="NameLabelLeave"/>
+            </Viewbox>
+        </Label>
+        <Label Grid.Row="2" Grid.Column="0" Margin="15">
+            <Viewbox>
+                <TextBlock x:Name="Pos3" Text="3. " MouseDown="CancelPos3" Cursor="Hand" ToolTip="Click to remove" MouseEnter="NameLabelEnter" MouseLeave="NameLabelLeave"/>
+            </Viewbox>
+        </Label>
+        <TextBox Name="connectionsBox" Margin="10"
+                 Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
+                 IsReadOnly="True" VerticalScrollBarVisibility="Visible" FontSize="20" 
+                 VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
+      
+    </Grid>
+</Window>

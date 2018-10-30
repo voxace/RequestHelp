@@ -1,0 +1,17 @@
+D:\Desktop\C#\BackgroundApplication\bin\Debug\MyIcon.ico
+D:\Desktop\C#\BackgroundApplication\bin\Debug\BackgroundApplication.exe.config
+D:\Desktop\C#\BackgroundApplication\bin\Debug\BackgroundApplication.exe
+D:\Desktop\C#\BackgroundApplication\bin\Debug\BackgroundApplication.pdb
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication.csprojResolveAssemblyReference.cache
+D:\Desktop\C#\BackgroundApplication\obj\Debug\App.g.cs
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication_MarkupCompile.cache
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication_MarkupCompile.lref
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication.g.resources
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication.Properties.Resources.resources
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication.csproj.GenerateResource.Cache
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication.exe
+D:\Desktop\C#\BackgroundApplication\obj\Debug\BackgroundApplication.pdb
+D:\Desktop\C#\BackgroundApplication\bin\Debug\NetworkCommsDotNet.dll
+D:\Desktop\C#\BackgroundApplication\bin\Debug\NetworkCommsDotNet.pdb
+D:\Desktop\C#\BackgroundApplication\obj\Debug\ClientWindow.g.cs
+D:\Desktop\C#\BackgroundApplication\obj\Debug\ClientWindow.baml

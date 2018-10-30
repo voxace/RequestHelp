@@ -1,0 +1,253 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using NetworkCommsDotNet;
+using NetworkCommsDotNet.Connections;
+using System.Windows.Threading;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+namespace Server
+{
+    /// <summary>
+    /// Interaction logic for ServerWindow.xaml
+    /// </summary>
+    public partial class ServerWindow : Window
+    {
+		public class ClientInfo
+		{
+			public bool queued;
+			public string ip;
+			public string name;
+			public int port;
+			public Connection conn;
+			public int timer;
+
+			public ClientInfo()
+			{
+				queued = false;
+				ip = "";
+				name = "";
+				port = 0;
+				conn = null;
+				timer = 5;
+			}
+		};
+
+		private ClientInfo[] clients = new ClientInfo[30];
+		DispatcherTimer dispatcherTimer = new DispatcherTimer();
+
+		public ServerWindow()
+        {
+            InitializeComponent();
+
+			// Initialise the client array
+			for (int i = 0; i < clients.Length; ++i)
+			{
+				clients[i] = new ClientInfo();
+			}				
+
+			//Trigger the correct method when a certain packet type is received
+			NetworkComms.AppendGlobalIncomingPacketHandler<string>("Queue", QueueHelp);
+			NetworkComms.AppendGlobalIncomingPacketHandler<string>("Cancel", CancelHelp);
+			NetworkComms.AppendGlobalIncomingPacketHandler<string>("KeepAlive", KeepAlive);
+
+			//Start listening for incoming connections
+			Connection.StartListening(ConnectionType.TCP, new System.Net.IPEndPoint(System.Net.IPAddress.Any, 5555));
+		}
+
+		private void QueueHelp(PacketHeader header, Connection connection, string message)
+		{
+			bool found = false;
+
+			string connInfo = connection.ToString().Split('>').Last().Trim();
+			string connIP = connInfo.Split(':').First();
+			int connPort = int.Parse(connInfo.Split(':').Last().Split('(').First().Trim());
+
+			for (int x = 0; x < 30; x++)
+			{
+				if (clients[x].conn == connection)
+				{
+					NetworkComms.SendObject("Update", connIP, connPort, x);
+					found = true;
+					break;
+				}
+			}
+
+			if (found == false)
+			{
+				for (int x = 0; x < 30; x++)
+				{
+					if (clients[x].queued == false)
+					{
+						clients[x].queued = true;
+						clients[x].name = message;
+						clients[x].ip = connIP;
+						clients[x].port = connPort;
+						clients[x].conn = connection;
+						clients[x].timer = 5;
+						NetworkComms.SendObject("Update", connIP, connPort, x.ToString());
+						break;
+					}
+				}
+			}			
+		}
+
+		private void CancelHelp(PacketHeader header, Connection connection, string message)
+		{
+			for (int x = 0; x < 30; x++)
+			{
+				if (clients[x].conn == connection)
+				{
+					shuffleDownFrom(x,false);
+					break;
+				}
+			}			
+		}
+
+		private void shuffleDownFrom(int index, bool dead)
+		{
+			if (dead == false)
+			{
+				NetworkComms.SendObject("RemoveClient", clients[index].ip, clients[index].port, "RemoveClient");
+			}			
+
+			for (int x = index; x < 29; x++)
+			{
+				clients[x] = clients[x + 1];
+				if (clients[x].queued == true)
+				{					
+					NetworkComms.SendObject("Update", clients[x].ip, clients[x].port, x.ToString());
+				}
+
+				clients[29] = new ClientInfo();
+			}
+		}
+
+		private void KeepAlive(PacketHeader header, Connection connection, string message)
+		{
+			for (int x = 0; x < 30; x++)
+			{
+				if (clients[x].conn == connection)
+				{
+					clients[x].timer = 5;
+					break;
+				}
+			}
+		}
+
+		private void RefreshButton_Click(object sender, RoutedEventArgs e)
+		{
+			refreshConns();
+		}
+
+		private void sw_Loaded(object sender, RoutedEventArgs e)
+		{
+			dispatcherTimer.Tick += dispatcherTimer_Tick;
+			dispatcherTimer.Interval = new System.TimeSpan(0,0,1);
+			dispatcherTimer.Start();
+		}
+
+		private void dispatcherTimer_Tick(object sender, EventArgs e)
+		{
+			refreshConns();
+			updateLabels();
+			removeDead();
+		}
+
+		private void refreshConns()
+		{
+			connectionsBox.Clear();
+			List<ConnectionInfo> arr = NetworkComms.AllConnectionInfo();
+
+			foreach (ConnectionInfo conn in arr)
+			{
+				if (conn.ToString().Length > 43)
+				{
+					string connInfo = conn.ToString().Split('>').Last().Trim();
+					string connIP = connInfo.Split(':').First();
+					int connPort = int.Parse(connInfo.Split(':').Last().Split('(').First().Trim());
+
+					connectionsBox.Dispatcher.BeginInvoke(new Action(() =>
+					{
+						connectionsBox.AppendText(connIP + ":" + connPort + "\n");
+					}));
+				}				
+			}
+		}
+
+		private void updateLabels()
+		{
+			if (clients[0].name.Length > 0)
+			{
+				Pos1.Text = "1. " + clients[0].name;
+			}
+			else
+			{
+				Pos1.Text = "";
+			}
+			if (clients[1].name.Length > 0)
+			{
+				Pos2.Text = "2. " + clients[1].name;
+			}
+			else
+			{
+				Pos2.Text = "";
+			}
+			if (clients[2].name.Length > 0)
+			{
+				Pos3.Text = "3. " + clients[2].name;
+			}
+			else
+			{
+				Pos3.Text = "";
+			}
+		}
+
+		private void removeDead()
+		{
+			for (int x = 0; x < 30; x++)
+			{
+				if (clients[x].queued == true)
+				{
+					if (clients[x].timer <= 0)
+					{
+						shuffleDownFrom(x,true);
+					}
+					else
+					{
+						clients[x].timer--;
+					}
+				}
+			}
+		}
+
+        private void CancelPos1(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            shuffleDownFrom(0, false);
+        }        
+
+        private void CancelPos2(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            shuffleDownFrom(1, false);
+        }
+
+        private void CancelPos3(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            shuffleDownFrom(2, false);
+        }
+
+        private void NameLabelEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var obj = sender as TextBlock;
+            obj.Foreground = Brushes.Red;
+        }
+
+        private void NameLabelLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var obj = sender as TextBlock;
+            obj.Foreground = Brushes.Black;
+        }
+    }
+}
